@@ -1,0 +1,29 @@
+<?php
+// В самом начале header.php
+require_once 'accessibility/accessibility.php';
+?>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Школа программирования ProGame во Владивостоке</title>
+    
+    <!-- Основные стили -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Стили для режима доступности -->
+    <link rel="stylesheet" href="/accessibility/accessibility.css">
+    
+    <!-- Мета-теги для доступности -->
+    <meta name="description" content="Школа программирования ProGame во Владивостоке. Обучение детей и подростков IT-профессиям с заботой о доступности">
+    <meta name="theme-color" content="#4a6cf7">
+</head>
+<body class="<?php echo $body_classes; ?>">
+    
+    <!-- Панель доступности (встроена в PHP) -->
+    <?php include 'accessibility/panel.php'; ?>
+    
+    <!-- Остальной header сайта -->
+    <header class="site-header">
+        <!-- Ваш существующий header -->
+    </header>
