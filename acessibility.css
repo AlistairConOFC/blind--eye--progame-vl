@@ -1,0 +1,573 @@
+/**
+ * Стили для режима доступности
+ * Школа программирования ProGame
+ * Версия: 2.0
+ */
+
+/* ========== ПАНЕЛЬ ДОСТУПНОСТИ ========== */
+.accessibility-panel {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+}
+
+/* Кнопка-глаз */
+.panel-toggle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #4a6cf7;
+    color: white;
+    border: 3px solid white;
+    cursor: pointer;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+    transition: all 0.3s ease;
+}
+
+.panel-toggle:hover {
+    background: #3151d4;
+    transform: scale(1.1) rotate(360deg);
+}
+
+/* Панель с настройками */
+.panel-settings {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 360px;
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    display: none;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 10000;
+}
+
+.accessibility-panel.active .panel-settings {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== ЗАГОЛОВКИ ПАНЕЛИ ========== */
+.settings-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.settings-header h3 {
+    color: #333;
+    font-size: 1.3em;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.settings-header p {
+    color: #666;
+    font-size: 0.9em;
+}
+
+/* ========== СЕКЦИИ НАСТРОЕК ========== */
+.settings-section {
+    margin-bottom: 25px;
+}
+
+.settings-section h4 {
+    margin-bottom: 12px;
+    color: #4a6cf7;
+    font-size: 1em;
+    font-weight: 600;
+}
+
+/* Группы кнопок */
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Кнопки настроек */
+.settings-btn {
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    flex: 1 1 auto;
+    min-width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.settings-btn:hover {
+    background: #f5f5f5;
+    border-color: #4a6cf7;
+}
+
+.settings-btn.active {
+    background: #4a6cf7;
+    color: white;
+    border-color: #4a6cf7;
+}
+
+/* Превью цветовых схем */
+.color-preview {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.color-preview.default { 
+    background: linear-gradient(135deg, #4a6cf7, #6380fd); 
+}
+
+.color-preview.dark { 
+    background: #1a1a2e; 
+}
+
+.color-preview.light { 
+    background: #f8f9fa; 
+    border: 1px solid #ddd; 
+}
+
+.color-preview.blue { 
+    background: #0096c7; 
+}
+
+/* ========== ЧЕКБОКСЫ ========== */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 10px;
+    transition: background 0.2s;
+    background: #f8f9fa;
+}
+
+.checkbox-label:hover {
+    background: #e9ecef;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #4a6cf7;
+}
+
+/* ========== КНОПКИ ДЕЙСТВИЙ ========== */
+.settings-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
+}
+
+.settings-reset {
+    flex: 2;
+    padding: 12px;
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.settings-reset:hover {
+    background: #ff3333;
+}
+
+.settings-close {
+    flex: 1;
+    padding: 12px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.settings-close:hover {
+    background: #5a6268;
+}
+
+/* ========== СТАТУС СОХРАНЕНИЯ ========== */
+.settings-status {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+.settings-status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.settings-status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ========== СТИЛИ ДЛЯ НЕЗРЯЧИХ ========== */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+    white-space: nowrap;
+    clip-path: inset(100%);
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+}
+
+/* ========== РЕЖИМЫ ДОСТУПНОСТИ ========== */
+
+/* Размер шрифта */
+body.accessibility-large {
+    font-size: 18px;
+}
+
+body.accessibility-large h1 {
+    font-size: 2.8em;
+}
+
+body.accessibility-large h2 {
+    font-size: 2.2em;
+}
+
+body.accessibility-large h3 {
+    font-size: 1.8em;
+}
+
+body.accessibility-large p,
+body.accessibility-large li {
+    font-size: 1.1em;
+}
+
+/* Очень крупный текст */
+body.accessibility-xlarge {
+    font-size: 22px;
+}
+
+body.accessibility-xlarge h1 {
+    font-size: 3.2em;
+}
+
+body.accessibility-xlarge h2 {
+    font-size: 2.6em;
+}
+
+body.accessibility-xlarge h3 {
+    font-size: 2.2em;
+}
+
+body.accessibility-xlarge p,
+body.accessibility-xlarge li {
+    font-size: 1.3em;
+}
+
+/* Темная схема */
+body.accessibility-dark {
+    background: #1a1a2e !important;
+    color: #e0e0e0 !important;
+}
+
+body.accessibility-dark a {
+    color: #ffd700 !important;
+}
+
+body.accessibility-dark header,
+body.accessibility-dark footer,
+body.accessibility-dark .course-card,
+body.accessibility-dark .teacher-card,
+body.accessibility-dark .benefit,
+body.accessibility-dark .panel-settings {
+    background: #16213e !important;
+    color: #e0e0e0 !important;
+    border-color: #0f3460 !important;
+}
+
+body.accessibility-dark h1,
+body.accessibility-dark h2,
+body.accessibility-dark h3,
+body.accessibility-dark h4 {
+    color: #ffd700 !important;
+}
+
+body.accessibility-dark .btn-primary {
+    background: #4a6cf7 !important;
+    color: white !important;
+}
+
+body.accessibility-dark input,
+body.accessibility-dark textarea,
+body.accessibility-dark select {
+    background: #0f3460 !important;
+    color: white !important;
+    border-color: #4a6cf7 !important;
+}
+
+/* Светлая схема (высококонтрастная) */
+body.accessibility-light {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+body.accessibility-light a {
+    color: #0000ee !important;
+    font-weight: bold !important;
+    text-decoration: underline !important;
+}
+
+body.accessibility-light .btn {
+    border: 2px solid #000 !important;
+    background: #fff !important;
+    color: #000 !important;
+}
+
+body.accessibility-light .btn-primary {
+    background: #000 !important;
+    color: #fff !important;
+}
+
+/* Синяя схема (для людей с цветоаномалией) */
+body.accessibility-blue {
+    background: #e6f3ff !important;
+    color: #003366 !important;
+}
+
+body.accessibility-blue a {
+    color: #0066cc !important;
+    font-weight: bold !important;
+}
+
+body.accessibility-blue .course-card,
+body.accessibility-blue .teacher-card,
+body.accessibility-blue .benefit {
+    background: #ffffff !important;
+    border: 2px solid #0066cc !important;
+}
+
+/* Увеличенный интервал */
+body.accessibility-wide {
+    line-height: 1.8;
+    letter-spacing: 0.05em;
+    word-spacing: 0.1em;
+}
+
+body.accessibility-wide p,
+body.accessibility-wide li,
+body.accessibility-wide .course-description {
+    margin-bottom: 1.5em;
+}
+
+/* Очень большой интервал */
+body.accessibility-xwide {
+    line-height: 2.2;
+    letter-spacing: 0.1em;
+    word-spacing: 0.15em;
+}
+
+body.accessibility-xwide p,
+body.accessibility-xwide li {
+    margin-bottom: 2em;
+}
+
+/* Шрифт с засечками */
+body.accessibility-serif {
+    font-family: 'Times New Roman', Georgia, serif !important;
+}
+
+body.accessibility-serif * {
+    font-family: inherit !important;
+}
+
+/* ========== ДОПОЛНИТЕЛЬНЫЕ НАСТРОЙКИ ========== */
+
+/* Подчеркивание ссылок */
+body.accessibility-underline-links a {
+    text-decoration: underline !important;
+    text-decoration-thickness: 2px !important;
+    text-underline-offset: 3px !important;
+}
+
+/* Увеличенный курсор */
+body.accessibility-big-cursor * {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="14" fill="black" stroke="white" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="white"/></svg>') 16 16, auto !important;
+}
+
+/* Скрытие изображений */
+body.accessibility-hide-images img:not(.logo-img):not(.teacher-photo img):not([alt=""]) {
+    display: none !important;
+}
+
+/* Контрастные рамки для фокуса */
+*:focus-visible {
+    outline: 4px solid #4a6cf7 !important;
+    outline-offset: 3px !important;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px white !important;
+}
+
+/* Стили для скринридеров */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* ========== АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ ========== */
+@media (max-width: 768px) {
+    .accessibility-panel {
+        top: 10px;
+        left: 10px;
+    }
+    
+    .panel-toggle {
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+    
+    .panel-settings {
+        width: 300px;
+        max-width: calc(100vw - 40px);
+        left: 0;
+        top: 60px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .settings-btn {
+        width: 100%;
+    }
+    
+    .settings-actions {
+        flex-direction: column;
+    }
+    
+    .settings-reset,
+    .settings-close {
+        width: 100%;
+    }
+}
+
+/* Печатная версия */
+@media print {
+    .accessibility-panel {
+        display: none;
+    }
+}
+
+/* Высокий контраст Windows */
+@media (prefers-contrast: high) {
+    .settings-btn {
+        border: 3px solid currentColor;
+    }
+    
+    .settings-btn.active {
+        border: 3px solid #000;
+        background: #fff;
+        color: #000;
+    }
+}
+
+/* ========== АНИМАЦИИ ========== */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.panel-toggle:active {
+    animation: pulse 0.3s ease;
+}
+
+/* ========== ПОДСКАЗКИ ========== */
+[title] {
+    position: relative;
+}
+
+[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10001;
+}
