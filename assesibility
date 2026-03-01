@@ -1,0 +1,291 @@
+<?php
+/**
+ * Модуль доступности для сайта ProGame
+ * Версия: 2.0
+ */
+
+// Запускаем сессию если еще не запущена
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+class AccessibilityMode {
+    private $settings = [];
+    private $user_id = null;
+    private $db = null;
+    
+    /**
+     * Конструктор класса
+     * @param int $user_id ID пользователя (если авторизован)
+     */
+    public function __construct($user_id = null) {
+        $this->user_id = $user_id;
+        $this->initDatabase();
+        $this->loadSettings();
+    }
+    
+    /**
+     * Инициализация подключения к БД
+     */
+    private function initDatabase() {
+        // Подключение к базе данных (настройте под свои параметры)
+        $host = 'localhost';
+        $dbname = 'progame_db';
+        $username = 'root';
+        $password = '';
+        
+        try {
+            $this->db = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+            $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->createTable();
+        } catch(PDOException $e) {
+            error_log("Ошибка подключения к БД: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Создание таблицы для хранения настроек
+     */
+    private function createTable() {
+        $sql = "CREATE TABLE IF NOT EXISTS accessibility_settings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NULL,
+            session_id VARCHAR(255) NULL,
+            settings TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_user (user_id),
+            INDEX idx_session (session_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+        
+        try {
+            $this->db->exec($sql);
+        } catch(PDOException $e) {
+            error_log("Ошибка создания таблицы: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Загрузка настроек пользователя
+     */
+    private function loadSettings() {
+        // Настройки по умолчанию
+        $default_settings = [
+            'fontSize' => 'normal',
+            'colorScheme' => 'default',
+            'spacing' => 'normal',
+            'fontFamily' => 'normal',
+            'underlineLinks' => false,
+            'bigCursor' => false,
+            'hideImages' => false,
+            'lastUpdated' => date('Y-m-d H:i:s')
+        ];
+        
+        // Проверяем наличие сохраненных настроек
+        if ($this->user_id) {
+            // Для авторизованных пользователей - из БД
+            $settings = $this->loadFromDatabase();
+        } else {
+            // Для гостей - из сессии
+            $settings = $this->loadFromSession();
+        }
+        
+        $this->settings = $settings ? array_merge($default_settings, $settings) : $default_settings;
+    }
+    
+    /**
+     * Загрузка из базы данных
+     */
+    private function loadFromDatabase() {
+        if (!$this->db) return null;
+        
+        try {
+            if ($this->user_id) {
+                $stmt = $this->db->prepare("SELECT settings FROM accessibility_settings WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1");
+                $stmt->execute([$this->user_id]);
+            } else {
+                $session_id = session_id();
+                $stmt = $this->db->prepare("SELECT settings FROM accessibility_settings WHERE session_id = ? ORDER BY updated_at DESC LIMIT 1");
+                $stmt->execute([$session_id]);
+            }
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? json_decode($result['settings'], true) : null;
+        } catch(PDOException $e) {
+            error_log("Ошибка загрузки из БД: " . $e->getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Загрузка из сессии
+     */
+    private function loadFromSession() {
+        return isset($_SESSION['accessibility_settings']) ? $_SESSION['accessibility_settings'] : null;
+    }
+    
+    /**
+     * Сохранение настроек
+     */
+    public function saveSettings($settings) {
+        $this->settings = array_merge($this->settings, $settings);
+        $this->settings['lastUpdated'] = date('Y-m-d H:i:s');
+        
+        // Сохраняем в сессию
+        $_SESSION['accessibility_settings'] = $this->settings;
+        
+        // Если есть подключение к БД, сохраняем туда
+        if ($this->db) {
+            $this->saveToDatabase();
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Сохранение в базу данных
+     */
+    private function saveToDatabase() {
+        try {
+            $session_id = session_id();
+            $settings_json = json_encode($this->settings, JSON_UNESCAPED_UNICODE);
+            
+            if ($this->user_id) {
+                // Обновляем или вставляем для пользователя
+                $stmt = $this->db->prepare("INSERT INTO accessibility_settings (user_id, session_id, settings) 
+                                           VALUES (?, ?, ?) 
+                                           ON DUPLICATE KEY UPDATE settings = VALUES(settings)");
+                $stmt->execute([$this->user_id, $session_id, $settings_json]);
+            } else {
+                // Для гостя - по session_id
+                $stmt = $this->db->prepare("INSERT INTO accessibility_settings (session_id, settings) 
+                                           VALUES (?, ?) 
+                                           ON DUPLICATE KEY UPDATE settings = VALUES(settings)");
+                $stmt->execute([$session_id, $settings_json]);
+            }
+        } catch(PDOException $e) {
+            error_log("Ошибка сохранения в БД: " . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Сброс настроек
+     */
+    public function resetSettings() {
+        $this->settings = [
+            'fontSize' => 'normal',
+            'colorScheme' => 'default',
+            'spacing' => 'normal',
+            'fontFamily' => 'normal',
+            'underlineLinks' => false,
+            'bigCursor' => false,
+            'hideImages' => false,
+            'lastUpdated' => date('Y-m-d H:i:s')
+        ];
+        
+        // Очищаем в сессии
+        unset($_SESSION['accessibility_settings']);
+        
+        // Очищаем в БД
+        if ($this->db) {
+            try {
+                if ($this->user_id) {
+                    $stmt = $this->db->prepare("DELETE FROM accessibility_settings WHERE user_id = ?");
+                    $stmt->execute([$this->user_id]);
+                } else {
+                    $session_id = session_id();
+                    $stmt = $this->db->prepare("DELETE FROM accessibility_settings WHERE session_id = ?");
+                    $stmt->execute([$session_id]);
+                }
+            } catch(PDOException $e) {
+                error_log("Ошибка сброса в БД: " . $e->getMessage());
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Получение текущих настроек
+     */
+    public function getSettings() {
+        return $this->settings;
+    }
+    
+    /**
+     * Получение CSS классов для body
+     */
+    public function getBodyClasses() {
+        $classes = [];
+        
+        // Размер шрифта
+        if ($this->settings['fontSize'] === 'large') {
+            $classes[] = 'accessibility-large';
+        } elseif ($this->settings['fontSize'] === 'xlarge') {
+            $classes[] = 'accessibility-xlarge';
+        }
+        
+        // Цветовая схема
+        if ($this->settings['colorScheme'] === 'dark') {
+            $classes[] = 'accessibility-dark';
+        } elseif ($this->settings['colorScheme'] === 'light') {
+            $classes[] = 'accessibility-light';
+        } elseif ($this->settings['colorScheme'] === 'blue') {
+            $classes[] = 'accessibility-blue';
+        }
+        
+        // Интервалы
+        if ($this->settings['spacing'] === 'wide') {
+            $classes[] = 'accessibility-wide';
+        } elseif ($this->settings['spacing'] === 'xwide') {
+            $classes[] = 'accessibility-xwide';
+        }
+        
+        // Шрифт
+        if ($this->settings['fontFamily'] === 'serif') {
+            $classes[] = 'accessibility-serif';
+        }
+        
+        // Дополнительные настройки
+        if ($this->settings['underlineLinks']) {
+            $classes[] = 'accessibility-underline-links';
+        }
+        
+        if ($this->settings['bigCursor']) {
+            $classes[] = 'accessibility-big-cursor';
+        }
+        
+        if ($this->settings['hideImages']) {
+            $classes[] = 'accessibility-hide-images';
+        }
+        
+        return implode(' ', $classes);
+    }
+}
+
+// Инициализация класса
+$accessibility = new AccessibilityMode(isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null);
+$accessibility_settings = $accessibility->getSettings();
+$body_classes = $accessibility->getBodyClasses();
+
+// Обработка AJAX запросов
+if (isset($_POST['action']) && $_POST['action'] === 'save_accessibility') {
+    header('Content-Type: application/json');
+    
+    $settings = json_decode($_POST['settings'], true);
+    if ($settings) {
+        $result = $accessibility->saveSettings($settings);
+        echo json_encode(['success' => $result, 'settings' => $accessibility->getSettings()]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Invalid settings']);
+    }
+    exit;
+}
+
+if (isset($_POST['action']) && $_POST['action'] === 'reset_accessibility') {
+    header('Content-Type: application/json');
+    $result = $accessibility->resetSettings();
+    echo json_encode(['success' => $result, 'settings' => $accessibility->getSettings()]);
+    exit;
+}
+?>
